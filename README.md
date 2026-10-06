@@ -3,7 +3,7 @@
 
 > **이 문서 하나로 처음부터 끝까지 재현할 수 있습니다.** <br>
 > LLM에 질문하지 않아도 모든 단계·명령·소스 코드가 그대로 들어 있습니다. <br>
-> 실제로 이 과정을 한 번 거치며 만난 **7가지 버그와 그 수정 코드**도 [Part 10](#part-10)에 모두 기록했습니다. <br>
+> 실제로 이 과정을 한 번 거치며 만난 **11가지 버그와 그 수정 코드**도 [Part 10](#part-10)에 모두 기록했습니다. <br>
 
 
 ![](unity-capture.gif)
@@ -18,8 +18,9 @@
 | 대상 로봇 | Rainbow Robotics **RB3-730 (U-Version)** — 6축 협업로봇 |
 | 최종 환경 | Unity **2022.3.62f3**, Built-in Render Pipeline, Windows 10/11 |
 | 사용 도구 | Git, PowerShell 5.1+, Python(미설치 가능), Blender 4.2.23 포터블, Unity Roslyn |
-| 총 소스량 | C# 2,992줄 / Python 427줄 / PowerShell 624줄 / URDF 169줄 |
-| 검증 상태 | C# 사전 컴파일 오류 0 / 경고 0, TCP 회귀 테스트 <br>**14개 섹션 61개 항목 전부 통과** (Unity Play 모드 실측, 2026-10-06) |
+| 총 소스량 | C# 2,992줄 / Python 427줄 / PowerShell 624줄 / URDF 169줄 — **합계 4,212줄** |
+| 검증 상태 | C# 사전 컴파일 오류 0 / 경고 0, TCP 회귀 테스트 **14개 섹션 61개 항목 전부 통과** (Unity Play 모드 실측, 2026-10-06) |
+| 재현성 | 수정 완료 후 회귀 테스트 **연속 5회 전부 61/61 통과** (단 1회 통과는 통과의 증거가 아닙니다 — [Part 10.10](#part-10)을 보세요) |
 
 ### 이 문서를 읽는 순서
 
@@ -6088,11 +6089,11 @@ connected to 127.0.0.1:5000
 
 == state
   [ ok ] STATUS  (OK STATUS ready=True moving=False jogging=False speed=0.30 clients=1)
-  [ ok ] GETPOS  (J = 9.10, -9.10, 9.10, 0.00, 0.00, 0.00)
+  [ ok ] GETPOS  (J = 0.00, 0.00, 0.00, 0.00, 0.00, 0.00)
   [ ok ] STATE json parses  (ok=True moving=False speed=0.300 clients=1)
   [ ok ] STATE reports a resolved rig  (driver found all six bones)
-  [ ok ] STATE has six joint values  (j = 9.102, -9.102, 9.102, 0.000, 0.000, 0.000)
-  ....   TCP position = -0.0437, 0.8717, 0.0135 m
+  [ ok ] STATE has six joint values  (j = 0.000, 0.000, 0.000, 0.000, 0.000, 0.000)
+  ....   TCP position = 0.0000, 0.8753, 0.0064 m
 
 == speed override
   [ ok ] SPEED 25  (OK SPEED 25.0)
@@ -6113,15 +6114,15 @@ connected to 127.0.0.1:5000
   [ ok ] JOGSTART J2 +1  (OK JOGSTART)
   [ ok ] STATE reports jogging  (jogging = True)
   [ ok ] JOGSTOP  (OK JOGSTOP)
-  [ ok ] J2 moved while the jog was held  (delta = 8.858 deg)
+  [ ok ] J2 moved while the jog was held  (delta = 8.973 deg)
   [ ok ] JOGSTART with a bad axis rejected  (ERR JOGSTART what must be J1..J6, X, Y, Z, RX, RY or RZ)
 
 == tool jog, one shot
   [ ok ] TCP pose is reachable  (position = 0.0000, 0.8753, 0.0064 m)
   [ ok ] TCP quaternion is normalised  (length = 1.00000)
   [ ok ] linear tool jog X moved the TCP  (-0.0597 0.8302 0.0286  ->  -0.0851 0.8345 0.0378)
-  [ ok ] linear tool jog Z moved the TCP  (-0.0851 0.8345 0.0378  ->  -0.0946 0.8349 0.0124)
-  [ ok ] angular tool jog RX rotated the TCP  (0.08583 0.98106 -0.01513 -0.17299  ->  0.08810 0.97902 -0.05244 -0.17610)
+  [ ok ] linear tool jog Z moved the TCP  (-0.0851 0.8345 0.0378  ->  -0.0946 0.8349 0.0122)
+  [ ok ] angular tool jog RX rotated the TCP  (0.08583 0.98106 -0.01513 -0.17299  ->  0.08810 0.97903 -0.05235 -0.17609)
 
 == stop and home
   [ ok ] STOP  (OK STOP)
@@ -6157,7 +6158,7 @@ connected to 127.0.0.1:5000
   [ ok ] the cycle visited point 1  (arm reached the pick pose)
   [ ok ] the cycle visited point 2  (arm reached the place pose)
   [ ok ] CYCLEPAUSE reports paused  (OK CYCLE paused pos=2/2 lap=1/inf point=)
-  [ ok ] CYCLEPAUSE again resumes  (OK CYCLE moving pos=2/2 lap=1/inf point=drop)
+  [ ok ] CYCLEPAUSE again resumes  (OK CYCLE dwell pos=2/2 lap=1/inf point=drop)
   [ ok ] a manual jog cancels the cycle  (OK CYCLE idle points=2)
 
 == finite cycle
@@ -6165,9 +6166,9 @@ connected to 127.0.0.1:5000
   [ ok ] the cycle stopped itself after one lap  (CYCLESTATE went back to idle)
 
 == save and load
-  [ ok ] SAVETEACH reports the two taught points  (OK SAVETEACH 2 C:/.../Digital_Twin_2022\rb3_730_teach_points.json)
+  [ ok ] SAVETEACH reports the two taught points  (OK SAVETEACH 2 C:/Users/Administrator/AppData/LocalLow/DefaultCompany/Digital_Twin_2022\rb3_730_teach_points.json)
   [ ok ] CLEAR emptied the set  (OK LIST 0)
-  [ ok ] LOADTEACH  (OK LOADTEACH 2 C:/.../Digital_Twin_2022\rb3_730_teach_points.json)
+  [ ok ] LOADTEACH  (OK LOADTEACH 2 C:/Users/Administrator/AppData/LocalLow/DefaultCompany/Digital_Twin_2022\rb3_730_teach_points.json)
   [ ok ] the saved points came back  (OK LIST 2 with 2 points)
   [ ok ] the reloaded names survived  (1=pick  2=drop)
   [ ok ] the reloaded dwells survived  (1=0.75s  2=0.1s)
@@ -7002,7 +7003,7 @@ Get-ChildItem -LiteralPath "$env:USERPROFILE\AppData\LocalLow" -Filter '*teach*'
 7. [Part 7](#part-7) — TCP 프로토콜
 8. [Part 8](#part-8) — 회귀 테스트
 9. [Part 9](#part-9) — 실사용 시나리오
-10. [Part 10](#part-10) — 버그 7가지
+10. [Part 10](#part-10) — 버그 11가지
 
 막히면 [Part 11.2](#112-오류-코드-cheatsheet) 의 오류 코드 표에서
 에러 메시지를 검색하세요. 모든 실패 원인이 거기에 있습니다.
