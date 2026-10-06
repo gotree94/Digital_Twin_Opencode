@@ -16,7 +16,7 @@
 | 최종 환경 | Unity **2022.3.62f3**, Built-in Render Pipeline, Windows 10/11 |
 | 사용 도구 | Git, PowerShell 5.1+, Python(미설치 가능), Blender 4.2.23 포터블, Unity Roslyn |
 | 총 소스량 | C# 2,992줄 / Python 427줄 / PowerShell 624줄 / URDF 169줄 |
-| 검증 상태 | C# 사전 컴파일 오류 0 / 경고 0, TCP 회귀 테스트 **14개 섹션 61개 항목 전부 통과** (Unity Play 모드 실측, 2026-10-06) |
+| 검증 상태 | C# 사전 컴파일 오류 0 / 경고 0, TCP 회귀 테스트 <br>**14개 섹션 61개 항목 전부 통과** (Unity Play 모드 실측, 2026-10-06) |
 
 ### 이 문서를 읽는 순서
 
